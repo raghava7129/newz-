@@ -3,8 +3,12 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/codes/newz-/app/src/main/res/layout/activity_main.xml" value="0.264" />
+        <entry key="..\:/codes/newz-/app/src/main/res/layout/activity_full_article.xml" value="0.23802083333333332" />
+        <entry key="..\:/codes/newz-/app/src/main/res/layout/activity_main.xml" value="0.2" />
+        <entry key="..\:/codes/newz-/app/src/main/res/layout/error_page.xml" value="0.176" />
         <entry key="..\:/codes/newz-/app/src/main/res/layout/genre_child.xml" value="0.536" />
+        <entry key="..\:/codes/newz-/app/src/main/res/layout/loading_news_item.xml" value="0.23802083333333332" />
+        <entry key="..\:/codes/newz-/app/src/main/res/layout/loading_page.xml" value="0.176" />
         <entry key="..\:/codes/newz-/app/src/main/res/layout/news_child.xml" value="0.264" />
       </map>
     </option>
