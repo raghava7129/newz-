@@ -1,11 +1,19 @@
 package com.raghava.newz_.models;
 
 public class News_Articles {
-    private String urlToImage;
     private String title;
     private String description;
+    private String urlToImage;
     private String url;
     private String content;
+
+    public News_Articles(String title,String description,String urlToImage , String url, String content) {
+        this.title = title;
+        this.description = description;
+        this.urlToImage = urlToImage;
+        this.url = url;
+        this.content = content;
+    }
 
     public String getContent() {
         return content;

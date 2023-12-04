@@ -17,7 +17,7 @@ public class FullArticle extends AppCompatActivity {
 
         title=getIntent().getStringExtra("title");
         description=getIntent().getStringExtra("description");
-        imageurl=getIntent().getStringExtra("imageurl");
+        imageurl=getIntent().getStringExtra("urlToImage");
         url=getIntent().getStringExtra("url");
 
     }

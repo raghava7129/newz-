@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -14,6 +15,7 @@ import com.raghava.newz_.models.API.NewsArticlesInteface;
 import com.raghava.newz_.models.GenreModel;
 import com.raghava.newz_.models.New_model;
 import com.raghava.newz_.models.News_Articles;
+import com.raghava.newz_.viewModel.newsViewModel;
 import com.raghava.newz_.views.GenreAdapter;
 import com.raghava.newz_.views.PaginationScrollListener;
 import com.raghava.newz_.views.newsAdapter;
@@ -41,15 +43,21 @@ public class MainActivity extends AppCompatActivity {
     private static final int START_PAGE_NO=1;
 
     private int current_page_no=START_PAGE_NO;
+    String GenreName = "All";
 
-    List<News_Articles> data=new ArrayList<>();
+    ArrayList<News_Articles> data=new ArrayList<>();
     List<GenreModel> GenreModels=new ArrayList<>();
+
+    private newsViewModel newsVM=null; // Instance of newsViewModel
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         init_views();
+
+
+        newsVM = new newsViewModel(MainActivity.this,data != null ? data :new ArrayList<>(),FullPB);
 
         // Genre Adapter
         fillGenreContent();
@@ -60,8 +68,21 @@ public class MainActivity extends AppCompatActivity {
         rvGenre.setLayoutManager(linearLayoutManagerGenre);
         rvGenre.setAdapter(genreAdapter);
 
+
+        GenreName = getIntent().getStringExtra("GenreType");
+        if(GenreName == null) System.out.println("************************************* null");
+
+        if (GenreName != null && !GenreName.equals("All")) {
+            Toast.makeText(this, GenreName, Toast.LENGTH_SHORT).show();
+            newsVM.setGenre(GenreName);
+            loadNextPage(GenreName);
+        } else {
+            loadNextPage("All");
+        }
+
         // News Adapter
         news_adapter=new newsAdapter(MainActivity.this,data);
+
         LinearLayoutManager linearLayoutManagerNews=new LinearLayoutManager(MainActivity.this,
                 LinearLayoutManager.VERTICAL,false);
 
@@ -74,12 +95,12 @@ public class MainActivity extends AppCompatActivity {
             protected void loadNextArticles() {
                 isLoading=true;
                 current_page_no = current_page_no+1;
-                loadNextPage();
+                loadNextPage(GenreName);
             }
 
             @Override
             public boolean isLoading() {
-                return isLastPage;
+                return isLoading;
             }
 
             @Override
@@ -88,12 +109,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        retryBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                load1Page();
-            }
-        });
+        newsVM.getArticlesByGenre("All",current_page_no);
+        news_adapter.notifyDataSetChanged();
 
     }
 
@@ -105,13 +122,13 @@ public class MainActivity extends AppCompatActivity {
         FullPB=findViewById(R.id.FullPB);
     }
 
-    private void loadNextPage(){
-
+    private void loadNextPage(String Genre){
+        newsVM.loadNextPage(current_page_no,isLastPage,isLoading,Genre);
     }
 
     private void fillGenreContent(){
 
-//        business entertainment general health science sports technology
+//        business entertainment general health science sports technology   All(Default Genre)
 
         GenreModel business=new GenreModel("business","https://images.unsplash.com/photo-1434626881859-194d67b2b86f?q=80&w=2074&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
         GenreModel entertainment=new GenreModel("entertainment","https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
@@ -129,38 +146,5 @@ public class MainActivity extends AppCompatActivity {
         GenreModels.add(sports);
         GenreModels.add(technology);
     }
-
-    private void getArticlesByGenre(String Genre){
-        FullPB.setVisibility(View.VISIBLE);
-        data.clear();
-        String baseURL="https://newsapi.org/";
-        String GenreURL = "https://newsapi.org/v2/top-headlines?category=" + Genre + "&apikey=2af1eb341e6f43e6839e842e5255f80f";
-        String UrlForAllArticles= "https://newsapi.org/v2/top-headlines?excludeDomains=stackoverflow.com&sortBy=publishedAt&language=en&apikey=2af1eb341e6f43e6839e842e5255f80f";
-        Retrofit retrofit=new Retrofit.Builder().addConverterFactory(GsonConverterFactory.create()).build();
-        NewsArticlesInteface api =retrofit.create(NewsArticlesInteface.class);
-        Call<News_Articles> call;
-        if(Genre.equals("All")){
-            call = api.getAllArticles(UrlForAllArticles);
-        }
-        else{
-            call= api.getArticlesByGenre(GenreURL);
-        }
-        call.enqueue(new Callback<News_Articles>() {
-            @Override
-            public void onResponse(Call<News_Articles> call, Response<News_Articles> response) {
-//                News_Articles data = response.body();
-                FullPB.setVisibility(View.GONE);
-
-
-
-            }
-
-            @Override
-            public void onFailure(Call<News_Articles> call, Throwable t) {
-                Toast.makeText(MainActivity.this, "Failed to fetch "+ Genre + " Articles.", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
 
 }

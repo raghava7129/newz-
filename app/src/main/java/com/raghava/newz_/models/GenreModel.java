@@ -2,13 +2,12 @@ package com.raghava.newz_.models;
 
 public class GenreModel {
     private String GenreName;
+    private String GenrePic;
 
     public GenreModel(String genreName, String genrePic) {
         GenreName = genreName;
         GenrePic = genrePic;
     }
-
-    private String GenrePic;
 
     public String getGenreName() {
         return GenreName;

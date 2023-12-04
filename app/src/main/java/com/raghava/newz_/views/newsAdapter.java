@@ -23,10 +23,10 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
-public class newsAdapter extends RecyclerView.Adapter<newsAdapter.MyViewHolder>{
+public class newsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     private Context context;
-    private List<News_Articles> data;
+    private ArrayList<News_Articles> data;
 
     private static final int item=0;
     private static final int loading=1;
@@ -35,19 +35,15 @@ public class newsAdapter extends RecyclerView.Adapter<newsAdapter.MyViewHolder>{
     private boolean errorPage=false;
 
 
-    public newsAdapter(Context context, List<News_Articles> data) {
+    public newsAdapter(Context context, ArrayList<News_Articles> data) {
         this.data = data;
         this.context=context;
     }
 
-    public List<News_Articles> getData() {
-        return data;
-    }
-
     @NonNull
     @Override
-    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(context);
 
         MyViewHolder vh=null;
 
@@ -58,7 +54,7 @@ public class newsAdapter extends RecyclerView.Adapter<newsAdapter.MyViewHolder>{
                 break;
 
             case loading:
-                View view2 = inflater.inflate(R.layout.error_page,parent,false);
+                View view2 = inflater.inflate(R.layout.loading_news_item,parent,false);
                 vh = new MyViewHolder(view2);
                 break;
         }
@@ -67,35 +63,36 @@ public class newsAdapter extends RecyclerView.Adapter<newsAdapter.MyViewHolder>{
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         News_Articles article = data.get(position);
 
         switch(getItemViewType(position)){
             case item:
                 final MyViewHolder myViewHolder = (MyViewHolder) holder;
                 String imageURL= article.getUrlToImage();
-                myViewHolder.Title.setText(article.getTitle());
-                myViewHolder.SubTitle.setText(article.getDescription());
+                myViewHolder.title.setText(article.getTitle());
+                myViewHolder.description.setText(article.getDescription());
 
                 Picasso.get().load(imageURL).placeholder(R.drawable.ic_launcher_background)
-                        .into(myViewHolder.newsImageView);
+                        .into(myViewHolder.urlToImage);
 
 
-                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                myViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         Intent i=new Intent(context,FullArticle.class);
                         i.putExtra("title",article.getTitle());
                         i.putExtra("description",article.getDescription());
-                        i.putExtra("imageurl",article.getUrlToImage());
+                        i.putExtra("urlToImage",article.getUrlToImage());
                         i.putExtra("url",article.getUrl());
+                        context.startActivity(i);
                     }
                 });
 
                 break;
 
             case loading :
-                errorHandling handling = null;
+               final loadHandling handling = (loadHandling) holder;
                 handling.progressBar.setVisibility(View.VISIBLE);
                 break;
         }
@@ -108,22 +105,22 @@ public class newsAdapter extends RecyclerView.Adapter<newsAdapter.MyViewHolder>{
 
     public static class MyViewHolder extends RecyclerView.ViewHolder{
 
-        private ImageView newsImageView;
-        private TextView Title;
-        private TextView SubTitle;
+        private ImageView urlToImage;
+        private TextView title;
+        private TextView description;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
-            newsImageView = itemView.findViewById(R.id.newsImage);
-            Title = itemView.findViewById(R.id.newsTitle);
-            SubTitle = itemView.findViewById(R.id.newsSubTitle);
+            urlToImage = itemView.findViewById(R.id.newsImage);
+            title = itemView.findViewById(R.id.newsTitle);
+            description = itemView.findViewById(R.id.newsSubTitle);
         }
     }
 
-    private class errorHandling extends RecyclerView.ViewHolder{
+    private class loadHandling extends RecyclerView.ViewHolder{
         private ProgressBar progressBar;
         
-        public errorHandling(View v){
+        public loadHandling(View v){
             super(v);
             progressBar= v.findViewById(R.id.progress_circular);
         }
@@ -131,35 +128,7 @@ public class newsAdapter extends RecyclerView.Adapter<newsAdapter.MyViewHolder>{
 
     @Override
     public int getItemViewType(int position) {
-        return (position==data.size()-1 && isLoading)? loading:item;
+        return (position <= data.size()-1 && isLoading)? loading:item;
     }
-
-    public void add_article(News_Articles na){
-        data.add(na);
-        notifyItemInserted(data.size()-1);
-    }
-
-    public void addAll_articles(List<News_Articles> data){
-        for(News_Articles na:data){
-            add_article(na);
-        }
-    }
-
-    public void addLoadingItem(){
-        isLoading=true;
-        add_article(new News_Articles());
-    }
-
-    public void removeLoadingItem(){
-        isLoading=false;
-        int position=data.size()-1;
-        News_Articles na=data.get(position);
-
-        if(na != null){
-            data.remove(position);
-            notifyItemRemoved(position);
-        }
-    }
-
 
 }

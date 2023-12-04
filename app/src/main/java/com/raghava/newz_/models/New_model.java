@@ -1,11 +1,12 @@
 package com.raghava.newz_.models;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class New_model {
     private int totalResults;
     private String status;
-    private ArrayList<News_Articles> data;
+    private ArrayList<News_Articles> articles;
 
     public int getTotalResults() {
         return totalResults;
@@ -24,10 +25,10 @@ public class New_model {
     }
 
     public ArrayList<News_Articles> getData() {
-        return data;
+        return articles;
     }
 
-    public void setData(ArrayList<News_Articles> data) {
-        this.data = data;
+    public void setData(ArrayList<News_Articles> articles) {
+        this.articles = articles;
     }
 }
