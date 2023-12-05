@@ -16,9 +16,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Newz"
         tools:targetApi="33">
+
         <activity
             android:name=".views.FullArticle"
             android:exported="true" />
+
+        <activity
+            android:name=".views.error"
+            android:exported="true" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -17,6 +17,7 @@ import com.raghava.newz_.R;
 import com.raghava.newz_.models.API.NewsArticlesInteface;
 import com.raghava.newz_.models.New_model;
 import com.raghava.newz_.models.News_Articles;
+import com.raghava.newz_.views.error;
 import com.raghava.newz_.views.newsAdapter;
 
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ public class newsViewModel {
     private ArrayList<News_Articles> data;
     private Context context;
     private ProgressBar FullPB;
+    private String apikey;
 
     public String getGenre() {
         return Genre;
@@ -45,10 +47,11 @@ public class newsViewModel {
         Genre = genre;
     }
 
-    public newsViewModel(Context context, ArrayList<News_Articles> data, ProgressBar FullPB) {
+    public newsViewModel(Context context, ArrayList<News_Articles> data, ProgressBar FullPB,String apikey) {
         this.data = data != null ? data : new ArrayList<>();
         this.context = context;
         this.FullPB=FullPB;
+        this.apikey=apikey;
     }
 
     public void loadNextPage(int current_page,boolean is_lastPage,boolean is_loading,String Genre){
@@ -56,10 +59,10 @@ public class newsViewModel {
             return;
         }
 
-        getArticlesByGenre(Genre,current_page);
+        getArticlesByGenre(Genre,current_page,data,is_loading);
     }
 
-    public void getArticlesByGenre(String Genre,int current_page) {
+    public void getArticlesByGenre(String Genre,int current_page,ArrayList<News_Articles> data,boolean is_loading) {
 
         if (Genre == null) {
             Toast.makeText(context, "Genre is null", Toast.LENGTH_SHORT).show();
@@ -67,7 +70,7 @@ public class newsViewModel {
         }
 
         FullPB.setVisibility(View.VISIBLE);
-        data.clear();
+//        data.clear();
 
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
@@ -82,8 +85,8 @@ public class newsViewModel {
                     .build();
 
             String baseURL = "https://newsapi.org/";
-            String GenreURL = "https://newsapi.org/v2/top-headlines?category=" + Genre + "&apikey=2af1eb341e6f43e6839e842e5255f80f";
-            String UrlForAllArticles = "https://newsapi.org/v2/top-headlines?excludeDomains=stackoverflow.com&sortBy=publishedAt&language=en&apikey=2af1eb341e6f43e6839e842e5255f80f";
+            String GenreURL = "https://newsapi.org/v2/top-headlines?category=" + Genre + "&apikey="+apikey+"&pageSize=3";
+            String UrlForAllArticles = "https://newsapi.org/v2/top-headlines?excludeDomains=stackoverflow.com&sortBy=publishedAt&language=en&apikey="+apikey+"&pageSize=3";
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(baseURL).addConverterFactory(GsonConverterFactory.create()).build();
             NewsArticlesInteface api = retrofit.create(NewsArticlesInteface.class);
@@ -109,7 +112,7 @@ public class newsViewModel {
 
                             FullPB.setVisibility(View.GONE);
                             ArrayList<News_Articles> articles = newsModel.getData();
-//                            Toast.makeText(context, "#articles: "+articles.size(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "#articles: "+articles.size(), Toast.LENGTH_SHORT).show();
 
                             if(articles != null){
                                 for (int i = 0; i < articles.size(); i++) {
@@ -142,6 +145,11 @@ public class newsViewModel {
 
         } else {
             Toast.makeText(context, "NO Internet Connection", Toast.LENGTH_SHORT).show();
+
+            Intent i=new Intent(context, error.class);
+            i.putExtra("isLoading",is_loading);
+            context.startActivity(i);
+
         }
 
     }

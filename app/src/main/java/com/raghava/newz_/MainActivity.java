@@ -31,9 +31,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
 
-//    news API key : 2af1eb341e6f43e6839e842e5255f80f
+//     private final String apikey = "2af1eb341e6f43e6839e842e5255f80f";
+     private final String apikey = "a9ed27c0f41943979960260a6e694eed";
 
-    newsAdapter news_adapter;
+    newsAdapter news_adapter=null;
     RecyclerView rvNews,rvGenre;
     ProgressBar progressBarLoadArticle,FullPB;
     Button retryBtn;
@@ -56,9 +57,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         init_views();
 
-
-        newsVM = new newsViewModel(MainActivity.this,data != null ? data :new ArrayList<>(),FullPB);
-
         // Genre Adapter
         fillGenreContent();
         GenreAdapter genreAdapter=new GenreAdapter(MainActivity.this,GenreModels);
@@ -72,15 +70,16 @@ public class MainActivity extends AppCompatActivity {
         GenreName = getIntent().getStringExtra("GenreType");
         if(GenreName == null) System.out.println("************************************* null");
 
-        if (GenreName != null && !GenreName.equals("All")) {
-            Toast.makeText(this, GenreName, Toast.LENGTH_SHORT).show();
-            newsVM.setGenre(GenreName);
-            loadNextPage(GenreName);
-        } else {
-            loadNextPage("All");
+        if(GenreName == null){
+            GenreName = "All";
         }
 
+        newsVM = new newsViewModel(MainActivity.this,data,FullPB,apikey);
+        loadNextPage(GenreName);
+
         // News Adapter
+
+        Toast.makeText(this, "Data Size : "+data.size(), Toast.LENGTH_SHORT).show();
         news_adapter=new newsAdapter(MainActivity.this,data);
 
         LinearLayoutManager linearLayoutManagerNews=new LinearLayoutManager(MainActivity.this,
@@ -105,12 +104,9 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean isLastPage() {
-                return isLastPage;
+                return current_page_no > 5;
             }
         });
-
-        newsVM.getArticlesByGenre("All",current_page_no);
-        news_adapter.notifyDataSetChanged();
 
     }
 
