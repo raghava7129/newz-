@@ -57,6 +57,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         init_views();
 
+        newsVM = new newsViewModel(MainActivity.this,FullPB,apikey);
+        newsVM.getArticlesByGenre("All",current_page_no,data,isLoading);
+
         // Genre Adapter
         fillGenreContent();
         GenreAdapter genreAdapter=new GenreAdapter(MainActivity.this,GenreModels);
@@ -74,18 +77,13 @@ public class MainActivity extends AppCompatActivity {
             GenreName = "All";
         }
 
-        newsVM = new newsViewModel(MainActivity.this,data,FullPB,apikey);
-        loadNextPage(GenreName);
-
         // News Adapter
-
-        Toast.makeText(this, "Data Size : "+data.size(), Toast.LENGTH_SHORT).show();
-        news_adapter=new newsAdapter(MainActivity.this,data);
 
         LinearLayoutManager linearLayoutManagerNews=new LinearLayoutManager(MainActivity.this,
                 LinearLayoutManager.VERTICAL,false);
 
-
+//        Toast.makeText(this, "Data Size : "+data.size(), Toast.LENGTH_SHORT).show();
+        news_adapter=new newsAdapter(MainActivity.this,data);
         rvNews.setLayoutManager(linearLayoutManagerNews);
         rvNews.setAdapter(news_adapter);
 
@@ -104,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean isLastPage() {
-                return current_page_no > 5;
+                return isLastPage;
             }
         });
 
@@ -119,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadNextPage(String Genre){
-        newsVM.loadNextPage(current_page_no,isLastPage,isLoading,Genre);
+        newsVM.loadNextPage(current_page_no,isLastPage,isLoading,Genre,data);
     }
 
     private void fillGenreContent(){

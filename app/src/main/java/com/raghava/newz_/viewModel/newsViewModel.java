@@ -34,7 +34,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class newsViewModel {
     private String Genre;
-    private ArrayList<News_Articles> data;
     private Context context;
     private ProgressBar FullPB;
     private String apikey;
@@ -47,14 +46,13 @@ public class newsViewModel {
         Genre = genre;
     }
 
-    public newsViewModel(Context context, ArrayList<News_Articles> data, ProgressBar FullPB,String apikey) {
-        this.data = data != null ? data : new ArrayList<>();
+    public newsViewModel(Context context,  ProgressBar FullPB,String apikey) {
         this.context = context;
         this.FullPB=FullPB;
         this.apikey=apikey;
     }
 
-    public void loadNextPage(int current_page,boolean is_lastPage,boolean is_loading,String Genre){
+    public void loadNextPage(int current_page,boolean is_lastPage,boolean is_loading,String Genre,ArrayList<News_Articles> data){
         if (is_loading || is_lastPage) {
             return;
         }
@@ -79,10 +77,6 @@ public class newsViewModel {
 
             HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
             loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-
-            OkHttpClient client = new OkHttpClient.Builder()
-                    .addInterceptor(loggingInterceptor)
-                    .build();
 
             String baseURL = "https://newsapi.org/";
             String GenreURL = "https://newsapi.org/v2/top-headlines?category=" + Genre + "&apikey="+apikey+"&pageSize=3";
@@ -112,19 +106,21 @@ public class newsViewModel {
 
                             FullPB.setVisibility(View.GONE);
                             ArrayList<News_Articles> articles = newsModel.getData();
-                            Toast.makeText(context, "#articles: "+articles.size(), Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(context, "#articles: "+articles.size(), Toast.LENGTH_SHORT).show();
 
-                            if(articles != null){
+                            if(articles.size() > 0){
                                 for (int i = 0; i < articles.size(); i++) {
                                     data.add(new News_Articles(articles.get(i).getTitle(),
                                             articles.get(i).getDescription(), articles.get(i).getUrlToImage(),
                                             articles.get(i).getUrl(), articles.get(i).getContent()));
+
                                 }
                             }
+                            else{
+                                Toast.makeText(context, "No Data : ", Toast.LENGTH_SHORT).show();
+                            }
                         }
-                        else{
-                            Toast.makeText(context, "No Data : ", Toast.LENGTH_SHORT).show();
-                        }
+
                     }
                     else{
                         Toast.makeText(context, "Unsuccessful request, status Code : "+ response.code(), Toast.LENGTH_SHORT).show();
